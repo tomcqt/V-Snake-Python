@@ -5,7 +5,7 @@ import random
 
 # set up screen
 Vex = vexdev.Vex()
-Screen = Vex.Screen(21, 5)
+Screen = Vex.Screen(21, 5, False)
 Screen.setCursorTo(1, 1)
 
 # start block code
@@ -76,7 +76,12 @@ def addRoomForNewPiece():
 
 def generateFruit():
   global fruitPos
-  fruitPos = [random.randint(1, 20), random.randint(1, 5)]
+  while True:
+    fruitPos = [random.randint(1, 20), random.randint(1, 5)]
+    # check if fruitPos is in snakePos0, snakePos1, snakePos2, snakePos3, or snakePos4
+    fruitPosFormatted = fruitPos[1] * 100 + fruitPos[0] + 1
+    if fruitPosFormatted not in snakePos0 and fruitPosFormatted not in snakePos1 and fruitPosFormatted not in snakePos2 and fruitPosFormatted not in snakePos3 and fruitPosFormatted not in snakePos4:
+      break
 
 
 def handleMovementVector(x, y, direction):
@@ -85,13 +90,13 @@ def handleMovementVector(x, y, direction):
   snakeMovementVector = [0, 0]  # placeholder, overwritten below
   if direction == 0:
     snakeMovementVector[0] = x
-    snakeMovementVector[1] = y + 1
+    snakeMovementVector[1] = y - 1
   elif direction == 1:
     snakeMovementVector[0] = x + 1
     snakeMovementVector[1] = y
   elif direction == 2:
     snakeMovementVector[0] = x
-    snakeMovementVector[1] = y - 1
+    snakeMovementVector[1] = y + 1
   elif direction == 3:
     snakeMovementVector[0] = x - 1
     snakeMovementVector[1] = y
@@ -149,7 +154,7 @@ def clearBoard():
   for y in range(1, 6):
     for x in range(1, 22):
       Screen.setCursorTo(x, y)
-      Screen.write("")
+      Screen.write(" ")
 
 
 def drawSnake():
@@ -181,6 +186,47 @@ def drawLoop():
   drawFruit()
   drawScore()
 
+def showMenu():
+  Screen.setCursorTo(1, 1)
+  Screen.write("+++++++++++++++++++++")
+  Screen.setCursorTo(1, 2)
+  Screen.write("+      V-Snake      +")
+  Screen.setCursorTo(1, 3)
+  Screen.write("+   Snake for Vex   +")
+  Screen.setCursorTo(1, 4)
+  Screen.write("+   Press [Check]   +")
+  Screen.setCursorTo(1, 5)
+  Screen.write("+++++++++++++++++++++")
+
+def handleControl(control):
+  global snakeDirection
+  # 0 = up, 1 = right, 2 = down, 3 = left
+  if control == "up":
+    if snakeDirection == 0:
+      # up to left
+      snakeDirection = 3
+    elif snakeDirection == 1:
+      # right to up
+      snakeDirection = 0
+    elif snakeDirection == 2:
+      # down to left
+      snakeDirection = 3
+    elif snakeDirection == 3:
+      # left to up
+      snakeDirection = 0
+  elif control == "down":
+    if snakeDirection == 0:
+      # up to right
+      snakeDirection = 1
+    elif snakeDirection == 1:
+      # right to down
+      snakeDirection = 2
+    elif snakeDirection == 2:
+      # down to right
+      snakeDirection = 1
+    elif snakeDirection == 3:
+      # left to down
+      snakeDirection = 2
 
 if __name__ == "__main__":
   snakeDirection = 0
@@ -194,11 +240,26 @@ if __name__ == "__main__":
   snakePos4 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   fruitPos = [17, 3]
   score = 0
-  snakeDirection = 1
+  snakeDirection = 1 # 0 = up, 1 = right, 2 = down, 3 = left
+
+  showMenu()
+  # wait for check button to be pressed when porting to Vex
+  input()
+
   while True:
     score += 1
     snakeLoop()
     drawLoop()
-    time.sleep(1)
+    # print(snakePos0)
+    # print(snakePos1)
+    # print(snakePos2)
+    # print(snakePos3)
+    # print(snakePos4)
+    # time.sleep(1)
+    control = input("")
+    if control == "w":
+      handleControl("up")
+    elif control == "s":
+      handleControl("down")
 
 # end block code
